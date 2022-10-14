@@ -1,6 +1,6 @@
 import torch
 from torch.nn import Module, Linear, ModuleList, LSTM
-from dgl import broadcast_edges, softmax_edges, sum_edges
+from dgl import broadcast_edges, softmax_edges, sum_edges, mean_edges
 
 from ..types import List, Callable, Tensor
 
@@ -106,3 +106,12 @@ class EdgeSet2Set(Module):
                 q_star = torch.cat([q, readout], dim=-1)
 
             return q_star
+
+
+class EdgeAvgPooling(Module):
+
+    def forward(self, graph, feat):
+        with graph.local_scope():
+            graph.edata['h'] = feat
+            readout = mean_edges(graph, 'h')
+            return readout

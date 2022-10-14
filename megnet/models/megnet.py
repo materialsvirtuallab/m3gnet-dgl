@@ -1,8 +1,8 @@
 import torch
 from torch.nn import Module, ModuleList, Identity, Softplus, Dropout
-from dgl.nn import Set2Set
+from dgl.nn import Set2Set, AvgPooling
 
-from .helper import MLP, EdgeSet2Set
+from .helper import MLP, EdgeSet2Set, EdgeAvgPooling
 from ..layers import MEGNetBlock
 from ..types import List, Optional, DGLGraph, Tensor
 
@@ -22,6 +22,7 @@ class MEGNet(Module):
         edge_embed: Optional[Module] = None,
         attr_embed: Optional[Module] = None,
         dropout: Optional[float] = None,
+        readout: Optional[str] = 'set2set',
     ) -> None:
         super().__init__()
 
@@ -45,9 +46,15 @@ class MEGNet(Module):
             blocks.append(MEGNetBlock(dims=[block_out_dim] + hiddens, **block_args))  # type: ignore
         self.blocks = ModuleList(blocks)
 
-        s2s_kwargs = dict(n_iters=s2s_num_iters, n_layers=s2s_num_layers)
-        self.edge_s2s = EdgeSet2Set(block_out_dim, **s2s_kwargs)
-        self.node_s2s = Set2Set(block_out_dim, **s2s_kwargs)
+        if readout.lower() == 'set2set':
+            s2s_kwargs = dict(n_iters=s2s_num_iters, n_layers=s2s_num_layers)
+            self.edge_readout = EdgeSet2Set(block_out_dim, **s2s_kwargs)
+            self.node_readout = Set2Set(block_out_dim, **s2s_kwargs)
+        elif readout.lower() == 'avgpooling':
+            self.node_readout = AvgPooling()
+            self.edge_readout = EdgeAvgPooling() 
+        else:
+            raise ValueError(f"Invalid readout value ({readout})")
 
         self.output_proj = MLP(
             # S2S cats q_star to output producing double the dim
@@ -77,8 +84,8 @@ class MEGNet(Module):
             output = block(graph, edge_feat, node_feat, graph_attr)
             edge_feat, node_feat, graph_attr = output
 
-        node_vec = self.node_s2s(graph, node_feat)
-        edge_vec = self.edge_s2s(graph, edge_feat)
+        node_vec = self.node_readout(graph, node_feat)
+        edge_vec = self.edge_readout(graph, edge_feat)
 
         vec = torch.hstack([node_vec, edge_vec, graph_attr])
 
