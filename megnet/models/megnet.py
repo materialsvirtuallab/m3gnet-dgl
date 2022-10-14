@@ -22,7 +22,7 @@ class MEGNet(Module):
         edge_embed: Optional[Module] = None,
         attr_embed: Optional[Module] = None,
         dropout: Optional[float] = None,
-        readout: Optional[str] = 'set2set',
+        readout: str = 'set2set',
     ) -> None:
         super().__init__()
 
