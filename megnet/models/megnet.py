@@ -2,7 +2,7 @@ import torch
 from torch.nn import Module, ModuleList, Identity, Softplus, Dropout
 from dgl.nn import Set2Set, AvgPooling
 
-from .helper import MLP, EdgeSet2Set, EdgeAvgPooling
+from ..helper import MLP, EdgeSet2Set, EdgeAvgPooling
 from ..layers import MEGNetBlock
 from ..types import List, Optional, DGLGraph, Tensor
 
@@ -52,7 +52,7 @@ class MEGNet(Module):
             self.node_readout = Set2Set(block_out_dim, **s2s_kwargs)
         elif readout.lower() == 'avgpooling':
             self.node_readout = AvgPooling()
-            self.edge_readout = EdgeAvgPooling() 
+            self.edge_readout = EdgeAvgPooling()
         else:
             raise ValueError(f"Invalid readout value ({readout})")
 
