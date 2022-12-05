@@ -36,11 +36,12 @@ class MEGNetGraphConv(Module):
     @staticmethod
     def from_dims(edge_dims: list[int], node_dims: list[int], attr_dims: list[int]) -> MEGNetGraphConv:
         """
-        TODO: Add docs.
-        :param edge_dims:
-        :param node_dims:
-        :param attr_dims:
-        :return:
+        Initialize a GCL from dimensions based on MLP.
+
+        :param edge_dims: Edge dimensions.
+        :param node_dims: Node dimensions.
+        :param attr_dims: Attribute dimensions.
+        :return: MEGNetGraphConv.
         """
         # TODO(marcel): Softplus doesnt exactly match paper's SoftPlus2
         # TODO(marcel): Should we activate last?
