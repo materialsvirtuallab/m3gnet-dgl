@@ -41,6 +41,7 @@ def test_megnet():
         num_blocks=3,
         hiddens=[N1, N2],
         conv_hiddens=[N1, N1, N2],
+        act="swish",
         s2s_num_layers=4,
         s2s_num_iters=3,
         output_hiddens=[N2, N3],

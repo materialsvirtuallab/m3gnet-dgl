@@ -2,6 +2,7 @@ from collections import namedtuple
 
 import dgl
 import torch as th
+import torch.nn as nn
 
 from megnet.models.layers import MLP, MEGNetBlock, MEGNetGraphConv
 
@@ -53,6 +54,7 @@ def test_megnet_block():
     block = MEGNetBlock(
         dims=[5, 10, 13],
         conv_hiddens=[N1, N1, N2],
+        act=nn.SiLU(),
         skip=False,
     )
     graphs = get_graphs(5, NDIM=DIM, EDIM=DIM, GDIM=DIM)

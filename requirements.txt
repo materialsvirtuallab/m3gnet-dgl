@@ -3,4 +3,4 @@ dgl==0.9.1
 torch==1.13.0
 torchaudio==0.13.0
 torchvision==0.14.0
-pymatgen==2022.11.1
+pymatgen==2022.11.7

@@ -5,7 +5,7 @@ default_language_version:
 
 ci:
   autoupdate_schedule: monthly
-  skip: [flake8, mypy, pylint]
+  skip: [flake8, pylint]
 
 repos:
 
@@ -49,11 +49,6 @@ repos:
     rev: 4.0.1
     hooks:
       - id: flake8
-
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.961
-    hooks:
-      - id: mypy
 
   - repo: local
     hooks:

@@ -41,4 +41,3 @@ jobs:
       run: |
         # pip install pydocstyle --upgrade --quiet
         pydocstyle --count megnet
-

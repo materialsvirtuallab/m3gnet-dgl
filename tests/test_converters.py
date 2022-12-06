@@ -18,13 +18,9 @@ class GaussianExpansionTest(unittest.TestCase):
         # check the shape of a vector
         self.assertTrue(np.allclose(expanded_dist.shape, [20]))
         # check the first value of expanded distance
-        self.assertTrue(
-            np.allclose(expanded_dist[0], np.exp(-0.5 * np.power(1.0 - 0.0, 2.0)))
-        )
+        self.assertTrue(np.allclose(expanded_dist[0], np.exp(-0.5 * np.power(1.0 - 0.0, 2.0))))
         # check the last value of expanded distance
-        self.assertTrue(
-            np.allclose(expanded_dist[-1], np.exp(-0.5 * np.power(1.0 - 4.0, 2.0)))
-        )
+        self.assertTrue(np.allclose(expanded_dist[-1], np.exp(-0.5 * np.power(1.0 - 4.0, 2.0))))
 
 
 class Pmg2GraphTest(PymatgenTest):
@@ -54,11 +50,7 @@ class Pmg2GraphTest(PymatgenTest):
         self.assertTrue(np.allclose(graph.ndata["attr"][1], [1, 0]))
         # check the edge features of atom 0 and atom 1
         dist_converter = GaussianExpansion()
-        self.assertTrue(
-            np.allclose(
-                graph.edata["edge_attr"][0].numpy(), dist_converter(1.089).numpy()
-            )
-        )
+        self.assertTrue(np.allclose(graph.edata["edge_attr"][0].numpy(), dist_converter(1.089).numpy()))
         # check the shape of state features
         self.assertTrue(np.allclose(len(state), 2))
         # check the value of state features
@@ -107,9 +99,7 @@ class Pmg2GraphTest(PymatgenTest):
         )
         # check the state features
         self.assertTrue(np.allclose(state, [0.0, 0.0]))
-        structure_BaTiO3 = Structure.from_prototype(
-            "perovskite", ["Ba", "Ti", "O"], a=4.04
-        )
+        structure_BaTiO3 = Structure.from_prototype("perovskite", ["Ba", "Ti", "O"], a=4.04)
         element_types = get_element_list([structure_BaTiO3])
         p2g = Pmg2Graph(element_types=element_types, cutoff=4.0)
         graph, state = p2g.get_graph_from_structure(structure_BaTiO3)
@@ -153,12 +143,8 @@ class Pmg2GraphTest(PymatgenTest):
         self.assertTrue(np.allclose(state, [0.0, 0.0]))
 
     def test_get_element_list(self):
-        cscl = Structure.from_spacegroup(
-            "Pm-3m", Lattice.cubic(3), ["Cs", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]]
-        )
-        naf = Structure.from_spacegroup(
-            "Pm-3m", Lattice.cubic(3), ["Na", "F"], [[0, 0, 0], [0.5, 0.5, 0.5]]
-        )
+        cscl = Structure.from_spacegroup("Pm-3m", Lattice.cubic(3), ["Cs", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]])
+        naf = Structure.from_spacegroup("Pm-3m", Lattice.cubic(3), ["Na", "F"], [[0, 0, 0], [0.5, 0.5, 0.5]])
         elem_list = get_element_list([cscl, naf])
         self.assertEqual(elem_list, ("F", "Na", "Cl", "Cs"))
 

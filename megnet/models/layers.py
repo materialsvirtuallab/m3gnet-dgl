@@ -6,7 +6,7 @@ from __future__ import annotations
 import dgl
 import dgl.function as fn
 import torch
-from torch.nn import Dropout, Identity, Module, Softplus
+from torch.nn import Dropout, Identity, Module
 
 from .helper import MLP
 
@@ -24,7 +24,7 @@ class MEGNetGraphConv(Module):
     ) -> None:
         """
         :param edge_func: Edge update function.
-        :param node_func: Node update function
+        :param node_func: Node update function.
         :param attr_func: Global state update function.
         """
 
@@ -34,7 +34,7 @@ class MEGNetGraphConv(Module):
         self.attr_func = attr_func
 
     @staticmethod
-    def from_dims(edge_dims: list[int], node_dims: list[int], attr_dims: list[int]) -> MEGNetGraphConv:
+    def from_dims(edge_dims: list[int], node_dims: list[int], attr_dims: list[int], activation) -> MEGNetGraphConv:
         """
         Initialize a GCL from dimensions based on MLP.
 
@@ -45,9 +45,9 @@ class MEGNetGraphConv(Module):
         """
         # TODO(marcel): Softplus doesnt exactly match paper's SoftPlus2
         # TODO(marcel): Should we activate last?
-        edge_update = MLP(edge_dims, Softplus(), activate_last=True)
-        node_update = MLP(node_dims, Softplus(), activate_last=True)
-        attr_update = MLP(attr_dims, Softplus(), activate_last=True)
+        edge_update = MLP(edge_dims, activation, activate_last=True)
+        node_update = MLP(node_dims, activation, activate_last=True)
+        attr_update = MLP(attr_dims, activation, activate_last=True)
         return MEGNetGraphConv(edge_update, node_update, attr_update)
 
     def _edge_udf(self, edges: dgl.udf.EdgeBatch) -> torch.Tensor:
@@ -137,6 +137,7 @@ class MEGNetBlock(Module):
         self,
         dims: list[int],
         conv_hiddens: list[int],
+        act,
         dropout: float | None = None,
         skip: bool = True,
     ) -> None:
@@ -144,18 +145,20 @@ class MEGNetBlock(Module):
         TODO: Add docs.
         :param dims:
         :param conv_hiddens:
+        :param act:
         :param dropout:
         :param skip:
         """
         super().__init__()
 
         self.has_dense = len(dims) > 1
+        self.activation = act
         conv_dim = dims[-1]
         out_dim = conv_hiddens[-1]
 
         mlp_kwargs = {
             "dims": dims,
-            "activation": Softplus(),
+            "activation": self.activation,
             "activate_last": True,
             "bias_last": True,
         }
@@ -171,6 +174,7 @@ class MEGNetBlock(Module):
             edge_dims=[edge_in] + conv_hiddens,
             node_dims=[node_in] + conv_hiddens,
             attr_dims=[attr_in] + conv_hiddens,
+            activation=self.activation,
         )
 
         self.dropout = Dropout(dropout) if dropout else None

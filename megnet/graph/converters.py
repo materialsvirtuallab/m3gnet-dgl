@@ -56,9 +56,7 @@ class GaussianExpansion(nn.Module):
         """
         super().__init__()
         self.centers = np.linspace(initial, final, num_centers)
-        self.centers = nn.Parameter(
-            torch.tensor(self.centers).float(), requires_grad=False
-        )
+        self.centers = nn.Parameter(torch.tensor(self.centers).float(), requires_grad=False)
         if width is None:
             self.width = float(1.0 / np.diff(self.centers).mean())
         else:
@@ -67,9 +65,7 @@ class GaussianExpansion(nn.Module):
     def reset_parameters(self):
         """Reinitialize model parameters."""
         device = self.centers.device
-        self.centers = nn.Parameter(
-            self.centers.clone().detach().float(), requires_grad=False
-        ).to(device)
+        self.centers = nn.Parameter(self.centers.clone().detach().float(), requires_grad=False).to(device)
 
     def forward(self, bond_dists):
         """Expand distances.
@@ -129,10 +125,7 @@ class Pmg2Graph:
         natoms = len(mol)
         R = mol.cart_coords
         element_types = self.element_types
-        Z = [
-            np.eye(len(element_types))[element_types.index(site.specie.symbol)]
-            for site in mol
-        ]
+        Z = [np.eye(len(element_types))[element_types.index(site.specie.symbol)] for site in mol]
         Z = np.array(Z)
         weight = mol.composition.weight / len(mol)
         dist = np.linalg.norm(R[:, None, :] - R[None, :, :], axis=-1)
@@ -160,9 +153,7 @@ class Pmg2Graph:
         state_attr = [weight, nbonds]
         return g, state_attr
 
-    def get_graph_from_structure(
-        self, structure: Structure
-    ) -> tuple[dgl.DGLGraph, list]:
+    def get_graph_from_structure(self, structure: Structure) -> tuple[dgl.DGLGraph, list]:
         """
         Get a DGL graph from an input Structure.
 
@@ -175,14 +166,9 @@ class Pmg2Graph:
         numerical_tol = 1.0e-8
         pbc = np.array([1, 1, 1], dtype=int)
         element_types = self.element_types
-        Z = [
-            np.eye(len(element_types))[element_types.index(site.specie.symbol)]
-            for site in structure
-        ]
+        Z = [np.eye(len(element_types))[element_types.index(site.specie.symbol)] for site in structure]
         Z = np.array(Z)
-        lattice_matrix = np.ascontiguousarray(
-            np.array(structure.lattice.matrix), dtype=float
-        )
+        lattice_matrix = np.ascontiguousarray(np.array(structure.lattice.matrix), dtype=float)
         cart_coords = np.ascontiguousarray(np.array(structure.cart_coords), dtype=float)
         src_id, dst_id, images, bond_dist = find_points_in_spheres(
             cart_coords,

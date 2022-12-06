@@ -23,7 +23,6 @@ def prepare_munch_object(path: str) -> Munch:
 
 
 def prepare_config(path: str) -> Munch:
-    root = "/".join(path.split("/")[:-1])
     config = prepare_munch_object(path)
 
     # for k, v in config.model.items():
@@ -64,9 +63,7 @@ def prepare_data(config: Munch) -> tuple:
     test_size = config.data.split.test_size
     train_size = len(dataset) - val_size - test_size
 
-    train_data, val_data, test_data = random_split(
-        dataset, [train_size, val_size, test_size]
-    )
+    train_data, val_data, test_data = random_split(dataset, [train_size, val_size, test_size])
 
     data_std, data_mean, data_zmean, num_bond_mean = compute_data_stats(train_data)
 

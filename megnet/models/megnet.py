@@ -5,8 +5,9 @@ from __future__ import annotations
 
 import dgl
 import torch
+import torch.nn as nn
 from dgl.nn import Set2Set
-from torch.nn import Dropout, Identity, Module, ModuleList, Softplus
+from torch.nn import Dropout, Identity, Module, ModuleList
 
 from .helper import MLP, EdgeSet2Set
 from .layers import MEGNetBlock
@@ -26,6 +27,7 @@ class MEGNet(Module):
         s2s_num_layers: int,
         s2s_num_iters: int,
         output_hiddens: list[int],
+        act: str = "swish",
         is_classification: bool = True,
         node_embed: Module | None = None,
         edge_embed: Module | None = None,
@@ -42,6 +44,7 @@ class MEGNet(Module):
         :param s2s_num_layers:
         :param s2s_num_iters:
         :param output_hiddens:
+        :param act:
         :param is_classification:
         :param node_embed:
         :param edge_embed:
@@ -57,13 +60,23 @@ class MEGNet(Module):
         self.attr_embed = attr_embed if attr_embed else Identity()
 
         dims = [in_dim] + hiddens
-        self.edge_encoder = MLP(dims, Softplus(), activate_last=True)
-        self.node_encoder = MLP(dims, Softplus(), activate_last=True)
-        self.attr_encoder = MLP(dims, Softplus(), activate_last=True)
+
+        if act == "swish":
+            activation = nn.SiLU()
+        elif act == "sigmoid":
+            activation = nn.Sigmoid()
+        elif act == "tanh":
+            activation = nn.Tanh()
+        else:
+            raise Exception("Undefined activation type, please try using swish, sigmoid, tanh")
+
+        self.edge_encoder = MLP(dims, activation, activate_last=True)
+        self.node_encoder = MLP(dims, activation, activate_last=True)
+        self.attr_encoder = MLP(dims, activation, activate_last=True)
 
         blocks_in_dim = hiddens[-1]
         block_out_dim = conv_hiddens[-1]
-        block_args = dict(conv_hiddens=conv_hiddens, dropout=dropout, skip=True)
+        block_args = dict(conv_hiddens=conv_hiddens, dropout=dropout, act=activation, skip=True)
         blocks = []
 
         # first block
@@ -80,7 +93,7 @@ class MEGNet(Module):
         self.output_proj = MLP(
             # S2S cats q_star to output producing double the dim
             dims=[2 * 2 * block_out_dim + block_out_dim] + output_hiddens + [1],
-            activation=Softplus(),
+            activation=activation,
             activate_last=False,
         )
 

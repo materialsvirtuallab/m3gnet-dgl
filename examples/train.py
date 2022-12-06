@@ -38,9 +38,7 @@ def train(
 
         node_feat = torch.hstack((g.ndata["attr"], g.ndata["pos"]))
         edge_feat = g.edata["edge_attr"]
-        attrs = torch.ones(g.batch_size, 2).to(device) * torch.tensor(
-            [data.z_mean, data.num_bond_mean]
-        ).to(device)
+        attrs = torch.ones(g.batch_size, 2).to(device) * torch.tensor([data.z_mean, data.num_bond_mean]).to(device)
 
         pred = model(g, edge_feat, node_feat, attrs)
 
@@ -77,9 +75,7 @@ def validate(
 
             node_feat = torch.hstack((g.ndata["attr"], g.ndata["pos"]))
             edge_feat = g.edata["edge_attr"]
-            attrs = torch.ones(g.batch_size, 2).to(device) * torch.tensor(
-                [data.z_mean, data.num_bond_mean]
-            ).to(device)
+            attrs = torch.ones(g.batch_size, 2).to(device) * torch.tensor([data.z_mean, data.num_bond_mean]).to(device)
 
             pred = model(g, edge_feat, node_feat, attrs)
 
@@ -143,12 +139,8 @@ def run(
     print("## Training started ##")
 
     for epoch in tqdm(range(config.optimizer.max_epochs)):
-        train_loss, train_time = train(
-            model, device, optimizer, train_loss_function, data, dataloaders.train
-        )
-        val_loss, val_time = validate(
-            model, device, validate_loss_function, data, dataloaders.val
-        )
+        train_loss, train_time = train(model, device, optimizer, train_loss_function, data, dataloaders.train)
+        val_loss, val_time = validate(model, device, validate_loss_function, data, dataloaders.val)
 
         print(
             f"Epoch: {epoch + 1:03} Train Loss: {train_loss:.4f} "
@@ -173,12 +165,8 @@ if __name__ == "__main__":
     argparser = argparse.ArgumentParser("Agent Backbone Training")
 
     argparser.add_argument("--config-name", default="qm9_test", type=str)
-    argparser.add_argument(
-        "--test-validation", dest="test_validation", action="store_true"
-    )
-    argparser.add_argument(
-        "--no-test-validation", dest="test_validation", action="store_false"
-    )
+    argparser.add_argument("--test-validation", dest="test_validation", action="store_true")
+    argparser.add_argument("--no-test-validation", dest="test_validation", action="store_false")
     argparser.set_defaults(test_validation=True)
     argparser.add_argument("--seed", default=0, type=int)
 
